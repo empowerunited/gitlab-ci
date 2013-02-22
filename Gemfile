@@ -79,6 +79,7 @@ group :development, :test do
   gem 'capybara'
   gem 'factory_girl_rails'
   gem "ffaker"
+  gem 'email_spec'
 
   gem 'shoulda-matchers'
   gem 'guard-rspec'
