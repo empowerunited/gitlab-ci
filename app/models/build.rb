@@ -42,6 +42,8 @@ class Build < ActiveRecord::Base
 
     after_transition any => [:success, :failed, :canceled] do |build, transition|
       build.update_attributes finished_at: Time.now
+      Notifier.build_failed(build).deliver if build.status.to_sym == :failed
+      Notifier.build_fixed(build).deliver if build.changed_to_fixed?
     end
 
     state :pending, value: 'pending'
@@ -49,6 +51,31 @@ class Build < ActiveRecord::Base
     state :failed, value: 'failed'
     state :success, value: 'success'
     state :canceled, value: 'canceled'
+  end
+
+  def changed_to_fixed?
+    return false unless status.to_sym == :success
+
+    if current_commit_builds.where('id != ?', id).exists?
+      previous_build = current_commit_builds.where('id != ?', id).order('id desc').first
+    else
+      previous_build = previous_commit_builds.order('id desc').first
+    end
+
+    ! previous_build.present? || previous_build.status.to_sym != :success
+  end
+
+  def current_commit_builds
+    @current_commit_builds ||= project.builds.where(ref: ref, sha: sha)
+  end
+
+  def previous_commit_builds
+    @previous_commit_builds ||= project.builds.where(ref: ref, sha: previous_sha)
+  end
+
+  def previous_sha
+    #@previous_sha ||= project.previous_ref_sha(self.sha) - debug please
+    @previous_sha ||= (project.builds.where(ref: ref).where('id < ? and sha != ?', id, sha).order('id desc').first.sha rescue nil)
   end
 
   def compare?

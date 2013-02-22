@@ -1,0 +1,17 @@
+### Use the following to configure the email notifications (via smtp server)
+#
+# Example:
+#
+#  user_name: 'mailuser'
+#  password: 'password'
+#  domain: 'example.com'
+#  address: 'smtp.example.com'
+#  port: 587
+#  authentication: 'plain'
+#  enable_starttls_auto: true
+#  default_from: 'gitlab-ci@example.com'
+#  default_to: 'devteam@example.com'
+#
+
+default_from: 'gitlab-ci@example.com'
+default_to: 'devteam@example.com'
