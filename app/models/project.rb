@@ -62,6 +62,10 @@ class Project < ActiveRecord::Base
     `cd #{self.path} && git fetch && git log remotes/origin/#{ref} -1 --format=oneline | grep -e '^[a-z0-9]*' -o`.strip
   end
 
+  def previous_ref_sha ref
+    `cd #{self.path} && git fetch && git log remotes/origin/#{ref} -2 --format=oneline | grep -e '^[a-z0-9]*' -o`.strip.split("\n").last
+  end
+
   def status
     if last_build
       last_build.status

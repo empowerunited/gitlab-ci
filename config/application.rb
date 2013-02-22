@@ -58,5 +58,14 @@ module GitlabCi
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+
+    # emailing config
+    smtp_config = YAML.load(File.read(File.expand_path('smtp_config.yml', config.root))).symbolize_keys
+
+    config.default_from = smtp_config.delete(:default_from)
+    config.default_to = smtp_config.delete(:default_to)
+
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = smtp_config
   end
 end
